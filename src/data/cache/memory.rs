@@ -1,3 +1,7 @@
+//! In-memory implementation of tax data caching.
+//!
+//! Provides a thread-safe, time-based expiring cache for tax schedules.
+
 use super::TaxDataCache;
 use crate::errors::TaxError;
 use crate::models::{Jurisdiction, TaxEntityType, TaxSchedule};
@@ -7,12 +11,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 
-/// An in-memory cache implementation for tax schedules
-pub struct MemoryCache {
-    data: Arc<RwLock<HashMap<CacheKey, CacheEntry>>>,
-    ttl: Duration,
-}
-
+/// Key for cache entries combining jurisdiction, entity type, and tax year.
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub struct CacheKey {
     pub jurisdiction: Jurisdiction,
@@ -20,14 +19,34 @@ pub struct CacheKey {
     pub tax_year: u16,
 }
 
+/// Cache entry containing the tax schedule and its timestamp.
 #[derive(Clone, Debug)]
 pub struct CacheEntry {
     pub schedule: TaxSchedule,
     pub timestamp: Instant,
 }
 
+/// An in-memory cache implementation with time-based expiration.
+pub struct MemoryCache {
+    data: Arc<RwLock<HashMap<CacheKey, CacheEntry>>>,
+    ttl: Duration,
+}
+
 impl MemoryCache {
-    /// Creates a new MemoryCache instance with the specified TTL
+    /// Creates a new MemoryCache with the specified time-to-live duration.
+    ///
+    /// # Arguments
+    ///
+    /// * `ttl` - How long entries should remain valid in the cache
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tax_engine::data::cache::memory::MemoryCache;
+    /// use std::time::Duration;
+    ///
+    /// let cache = MemoryCache::new(Duration::from_secs(3600)); // 1 hour TTL
+    /// ```
     pub fn new(ttl: Duration) -> Self {
         Self {
             data: Arc::new(RwLock::new(HashMap::new())),
@@ -35,7 +54,7 @@ impl MemoryCache {
         }
     }
 
-    /// Gets the current TTL duration
+    /// Returns the current time-to-live duration.
     pub fn ttl(&self) -> Duration {
         self.ttl
     }
