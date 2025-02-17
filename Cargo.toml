@@ -2,10 +2,10 @@
 name = "tax_engine"
 version = "0.1.0"
 edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["PeterM45"]
 description = "A Rust tax calculation engine with automated rate fetching"
 license = "MIT"
-repository = "https://github.com/yourusername/tax_engine"
+repository = "https://github.com/peterm45/tax_engine"
 keywords = ["tax", "finance", "calculator", "irs"]
 categories = ["finance", "web-programming"]
 
